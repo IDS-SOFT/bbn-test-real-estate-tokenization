@@ -1,11 +1,12 @@
-const { ethers } = require('ethers');
+const { ethers, JsonRpcProvider } = require('ethers');
 require('dotenv').config();
-const contractABI = require('../abi/RealEstateTokenABI.json');  // Ensure you have the ABI in your project
+const contractABI = require('../abi/real_estate_token.sol/RealEstateToken.json');  // Ensure you have the ABI in your project
 
+console.log(process.env.RPC_URL);
 // Set up wallet and provider
-const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+const provider = new JsonRpcProvider(process.env.RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, contractABI, wallet);
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, contractABI.abi, wallet);
 
 exports.distributeDividends = async (req, res) => {
     const { amount } = req.body;

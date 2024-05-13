@@ -12,9 +12,9 @@ connectDB();
 
 app.use(express.json());
 
-const authMiddleware = require('./middleware/authMiddleware'); // You need to create this middleware
+//const authMiddleware = require('./middleware/authMiddleware'); // You need to create this middleware
 
-app.use('/api/blockchain', authMiddleware, blockchainRoutes);
+app.use('/api/blockchain', blockchainRoutes);
 
 // Routes
 app.use('/api/auth', authRoutes);

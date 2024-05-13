@@ -21,6 +21,7 @@ async function main() {
   const [owner, user1] = await ethers.getSigners();
   const token = await ethers.getContractAt("RealEstateToken", contractAddress, owner);
 
+  console.log("user1", user1, owner)
   // Distribute dividends
   console.log("Distributing dividends...");
   let tx = await token.distributeDividends({ value: ethers.utils.parseEther("1.0") });

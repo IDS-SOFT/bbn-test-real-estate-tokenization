@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 contract RealEstateToken is ERC20, Ownable, Pausable, ERC20Burnable {
@@ -13,7 +13,8 @@ contract RealEstateToken is ERC20, Ownable, Pausable, ERC20Burnable {
     // Total property value managed by the token
     uint256 public propertyValue;
 
-    constructor(uint256 initialSupply, uint256 _propertyValue) ERC20("RealEstateToken", "RET") {
+    constructor(uint256 initialSupply, uint256 _propertyValue) ERC20("RealEstateToken", "RET")  Ownable(msg.sender) {
+          // This is not typically necessary and may indicate a wrong setup or version
         _mint(msg.sender, initialSupply);
         propertyValue = _propertyValue;
     }
@@ -22,13 +23,42 @@ contract RealEstateToken is ERC20, Ownable, Pausable, ERC20Burnable {
     function distributeDividends() public payable onlyOwner {
         require(msg.value > 0, "No ether sent for dividends distribution.");
         uint256 totalSupply = totalSupply();
-        for (uint i = 0; i < totalSupply; i++) {
-            address shareholder = address(uint160(i));
-            uint256 holderBalance = balanceOf(shareholder);
+        uint256 totalDividends = msg.value;
+
+        // Distributing dividends based on the token balance of each holder
+        address[] memory holders = _getHolders();
+        for (uint i = 0; i < holders.length; i++) {
+            address holder = holders[i];
+            uint256 holderBalance = balanceOf(holder);
             if(holderBalance > 0) {
-                _dividends[shareholder] += (msg.value * holderBalance) / totalSupply;
+                uint256 holderDividend = (totalDividends * holderBalance) / totalSupply;
+                _dividends[holder] += holderDividend;
             }
         }
+    }
+
+    // Function to safely retrieve dividend holders
+    function _getHolders() internal view returns (address[] memory) {
+        uint256 holderCount = 0;
+        address[] memory holders = new address[](holderCount);
+        for (uint i = 0; i < totalSupply(); i++) {
+            address holder = address(uint160(i));
+            if(balanceOf(holder) > 0 && !_isHolderAdded(holders, holder)) {
+                holders[holderCount] = holder;
+                holderCount++;
+            }
+        }
+        return holders;
+    }
+
+    // Helper function to check if a holder is already added
+    function _isHolderAdded(address[] memory holders, address holder) internal pure returns (bool) {
+        for(uint i = 0; i < holders.length; i++) {
+            if(holders[i] == holder) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Function for a token holder to withdraw their dividends

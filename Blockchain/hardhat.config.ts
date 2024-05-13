@@ -25,12 +25,12 @@ task("withdrawDividends", "Withdraws dividends for the caller")
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.19",
+  solidity: "0.8.20",
   networks: {
     
     bbn_testnet: {
       url: "https://bbnrpc.hyderabad.bharatblockchain.io",
-      chainId: 2018,
+      chainId: 2023,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     }
